@@ -163,4 +163,5 @@ Authorization: Bearer <token>
 
 ## Autor
 
+Maria Olívia Cassucci dos Santos
 Projeto desenvolvido para a disciplina Programação II – Web, UEMG Unidade Passos.
