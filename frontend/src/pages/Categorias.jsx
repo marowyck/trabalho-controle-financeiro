@@ -5,6 +5,8 @@ import { CategoryIcon } from '../utils/categoryIcons';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import CategoryForm from '../components/CategoryForm';
+import EmptyState from '../components/EmptyState';
+import { CardGridSkeleton } from '../components/Skeleton';
 
 export default function Categorias() {
   const [categorias, setCategorias] = useState([]);
@@ -71,7 +73,7 @@ export default function Categorias() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
             Categorias
           </h1>
           <p className="text-sm text-neutral-500">Gerencie suas categorias de receita e despesa</p>
@@ -83,36 +85,43 @@ export default function Categorias() {
       </div>
 
       {loading ? (
-        <div className="text-center text-sm text-neutral-500">Carregando categorias...</div>
+        <CardGridSkeleton />
       ) : categorias.length === 0 ? (
-        <div className="surface rounded-md p-12 text-center text-sm text-neutral-500">
-          Nenhuma categoria cadastrada
-        </div>
+        <EmptyState
+          title="Nenhuma categoria cadastrada"
+          description="Crie categorias para organizar melhor suas receitas e despesas."
+          action={
+            <button type="button" onClick={handleOpenCreate} className="btn-primary">
+              <Plus size={16} />
+              Nova Categoria
+            </button>
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categorias.map((cat) => (
-            <div key={cat.id} className="surface group rounded-md p-5 transition-colors">
+            <div key={cat.id} className="surface group rounded-xl p-5 transition-all hover:shadow-lg">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
                     style={{
-                      backgroundColor: `${cat.color}14`,
-                      borderColor: `${cat.color}4d`,
+                      backgroundColor: `${cat.color}18`,
+                      borderColor: `${cat.color}50`,
                       color: cat.color,
                     }}
                   >
-                    <CategoryIcon name={cat.icon} size={19} weight="bold" />
+                    <CategoryIcon name={cat.icon} size={20} weight="bold" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-neutral-900 dark:text-neutral-100">
+                    <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
                       {cat.name}
                     </h3>
                     <span
-                      className={`mt-1 inline-flex rounded border px-2 py-0.5 text-xs font-medium ${
+                      className={`mt-1 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
                         cat.type === 'receita'
                           ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400'
-                          : 'border-brand/30 bg-brand/5 text-brand'
+                          : 'border-expense/30 bg-expense/5 text-expense'
                       }`}
                     >
                       {cat.type === 'receita' ? 'Receita' : 'Despesa'}
@@ -123,14 +132,14 @@ export default function Categorias() {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(cat)}
-                    className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+                    className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
                   >
                     <PencilSimple size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(cat)}
-                    className="rounded-md p-1.5 text-neutral-400 hover:bg-brand/10 hover:text-brand"
+                    className="rounded-lg p-1.5 text-neutral-400 hover:bg-expense/10 hover:text-expense"
                   >
                     <Trash size={16} />
                   </button>

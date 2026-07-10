@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ChartPie, ChartBar } from '@phosphor-icons/react';
+import { ChartPie, ChartBar, TrendUp } from '@phosphor-icons/react';
 import { transacaoApi } from '../api/transacaoApi';
 import SummaryCards from '../components/SummaryCards';
 import CategoryPieChart from '../components/CategoryPieChart';
 import MonthlyBarChart from '../components/MonthlyBarChart';
+import SaldoEvolutionChart from '../components/SaldoEvolutionChart';
+import { SummaryCardsSkeleton, ChartSkeleton } from '../components/Skeleton';
 
 export default function Dashboard() {
   const [resumo, setResumo] = useState(null);
@@ -17,13 +19,26 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-center text-sm text-neutral-500">Carregando dashboard...</div>;
+    return (
+      <div className="space-y-8">
+        <div>
+          <div className="h-7 w-40 animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-800" />
+          <div className="mt-2 h-4 w-56 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800/60" />
+        </div>
+        <SummaryCardsSkeleton />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+        <ChartSkeleton height={260} />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
           Dashboard
         </h1>
         <p className="text-sm text-neutral-500">Visão geral das suas finanças</p>
@@ -31,9 +46,9 @@ export default function Dashboard() {
 
       <SummaryCards data={resumo} />
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <div className="surface rounded-md p-6">
-          <div className="mb-4 flex items-center gap-2">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="surface rounded-xl p-6">
+          <div className="mb-5 flex items-center gap-2">
             <ChartPie size={18} className="text-neutral-500" />
             <h2 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
               Despesas por Categoria
@@ -42,8 +57,8 @@ export default function Dashboard() {
           <CategoryPieChart data={resumo.despesas_por_categoria} />
         </div>
 
-        <div className="surface rounded-md p-6">
-          <div className="mb-4 flex items-center gap-2">
+        <div className="surface rounded-xl p-6">
+          <div className="mb-5 flex items-center gap-2">
             <ChartBar size={18} className="text-neutral-500" />
             <h2 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
               Receitas x Despesas (6 meses)
@@ -51,6 +66,16 @@ export default function Dashboard() {
           </div>
           <MonthlyBarChart data={resumo.totais_por_mes} />
         </div>
+      </div>
+
+      <div className="surface rounded-xl p-6">
+        <div className="mb-5 flex items-center gap-2">
+          <TrendUp size={18} className="text-brand" />
+          <h2 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            Evolução do Saldo
+          </h2>
+        </div>
+        <SaldoEvolutionChart data={resumo.totais_por_mes} />
       </div>
     </div>
   );
