@@ -27,12 +27,13 @@ function formatTransaction(row) {
     updated_at: row.updated_at,
     category_name: row.category_name,
     category_color: row.category_color,
+    category_icon: row.category_icon,
   };
 }
 
 function buildListQuery(userId, filters) {
   let sql = `
-    SELECT t.*, c.name AS category_name, c.color AS category_color
+    SELECT t.*, c.name AS category_name, c.color AS category_color, c.icon AS category_icon
     FROM transactions t
     JOIN categories c ON c.id = t.category_id
     WHERE t.user_id = ?
@@ -83,7 +84,7 @@ function listar(req, res) {
 function buscar(req, res) {
   const transacao = db
     .prepare(
-      `SELECT t.*, c.name AS category_name, c.color AS category_color
+      `SELECT t.*, c.name AS category_name, c.color AS category_color, c.icon AS category_icon
        FROM transactions t
        JOIN categories c ON c.id = t.category_id
        WHERE t.id = ? AND t.user_id = ?`
@@ -181,7 +182,7 @@ function salvar(req, res) {
 
   const transacao = db
     .prepare(
-      `SELECT t.*, c.name AS category_name, c.color AS category_color
+      `SELECT t.*, c.name AS category_name, c.color AS category_color, c.icon AS category_icon
        FROM transactions t
        JOIN categories c ON c.id = t.category_id
        WHERE t.id = ?`
@@ -248,7 +249,7 @@ function editar(req, res) {
 
   const transacao = db
     .prepare(
-      `SELECT t.*, c.name AS category_name, c.color AS category_color
+      `SELECT t.*, c.name AS category_name, c.color AS category_color, c.icon AS category_icon
        FROM transactions t
        JOIN categories c ON c.id = t.category_id
        WHERE t.id = ?`
@@ -277,6 +278,8 @@ function deletar(req, res) {
 function resumo(req, res) {
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
 
   const totals = db
     .prepare(
@@ -297,6 +300,16 @@ function resumo(req, res) {
        WHERE user_id = ? AND status = 'pago' AND strftime('%Y-%m', date) = ?`
     )
     .get(req.userId, currentMonth);
+
+  const prevMonthTotals = db
+    .prepare(
+      `SELECT
+        COALESCE(SUM(CASE WHEN type = 'receita' THEN amount ELSE 0 END), 0) AS receitas_mes_anterior,
+        COALESCE(SUM(CASE WHEN type = 'despesa' THEN amount ELSE 0 END), 0) AS despesas_mes_anterior
+       FROM transactions
+       WHERE user_id = ? AND status = 'pago' AND strftime('%Y-%m', date) = ?`
+    )
+    .get(req.userId, prevMonth);
 
   const despesasPorCategoria = db
     .prepare(
@@ -325,6 +338,8 @@ function resumo(req, res) {
 
   const saldo = totals.total_receitas - totals.total_despesas;
   const saldoMes = monthTotals.receitas_mes - monthTotals.despesas_mes;
+  const saldoMesAnterior =
+    prevMonthTotals.receitas_mes_anterior - prevMonthTotals.despesas_mes_anterior;
 
   return res.json({
     saldo,
@@ -333,6 +348,9 @@ function resumo(req, res) {
     receitas_mes: monthTotals.receitas_mes,
     despesas_mes: monthTotals.despesas_mes,
     saldo_mes: saldoMes,
+    receitas_mes_anterior: prevMonthTotals.receitas_mes_anterior,
+    despesas_mes_anterior: prevMonthTotals.despesas_mes_anterior,
+    saldo_mes_anterior: saldoMesAnterior,
     despesas_por_categoria: despesasPorCategoria,
     totais_por_mes: totaisPorMes,
   });

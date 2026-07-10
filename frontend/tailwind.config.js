@@ -6,6 +6,14 @@ export default {
     extend: {
       colors: {
         brand: {
+          DEFAULT: '#0D9488',
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          500: '#14B8A6',
+          600: '#0D9488',
+          700: '#0F766E',
+        },
+        expense: {
           DEFAULT: '#DA1E28',
           50: '#FDECEC',
           100: '#FAD9DA',
@@ -14,7 +22,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },
